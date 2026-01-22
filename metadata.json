@@ -1,0 +1,5 @@
+{
+  "name": "BD Sync",
+  "description": "A Business Development meeting management tool with role-based access and AI-powered meeting summarization.",
+  "requestFramePermissions": []
+}

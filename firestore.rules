@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to get the current user's profile
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return getUserData().role == 'admin';
+    }
+
+    // Users Collection
+    // Users can read their own profile. Admins can read all.
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      // Only admin or system (via backend, though here client-side creation allowed for demo) can write
+      allow write: if request.auth != null && request.auth.uid == userId; 
+    }
+
+    // Teams Collection
+    // Admins can create. Auth users can read (to join) and update (to add self).
+    match /teams/{teamId} {
+      allow read: if request.auth != null;
+      allow create: if isAdmin();
+      allow update: if request.auth != null; // Allowing update for members to add themselves to memberIds
+    }
+
+    // Meetings Collection
+    // Admins can read/write all meetings.
+    // Members can read/write meetings ONLY if the meeting belongs to their assigned team.
+    match /meetings/{meetingId} {
+      // Allow read if admin OR if the meeting's teamId matches the user's assigned teamId
+      allow read: if request.auth != null && (
+        isAdmin() || 
+        resource.data.teamId == getUserData().teamId
+      );
+      
+      // Allow create if admin OR if the new meeting's teamId matches the user's assigned teamId
+      allow create: if request.auth != null && (
+        isAdmin() ||
+        request.resource.data.teamId == getUserData().teamId
+      );
+      
+      // Allow update if admin OR (member belongs to team AND resource belongs to team)
+      allow update: if request.auth != null && (
+        isAdmin() ||
+        (resource.data.teamId == getUserData().teamId && request.resource.data.teamId == getUserData().teamId)
+      );
+    }
+  }
+}
