@@ -284,20 +284,27 @@ const TeamDetail: React.FC = () => {
       if (editingMeeting) {
         // Update existing meeting
         const meetingRef = doc(db, 'meetings', editingMeeting.id);
-        await updateDoc(meetingRef, {
+        const updateData: any = {
           rawNotes: notes,
           analysis: analysis,
-          // specific fields can be updated, keeping original date/created at usually
-        });
+          lastEditedBy: user?.displayName || user?.email || 'Unknown',
+          lastEditedAt: new Date().toISOString()
+        };
+        await updateDoc(meetingRef, updateData);
         alert('Meeting updated successfully!');
       } else {
         // Create new meeting
+        const now = new Date().toISOString();
+        const userName = user?.displayName || user?.email || 'Unknown';
         await addDoc(collection(db, 'meetings'), {
           teamId: id,
           rawNotes: notes,
           analysis,
-          date: new Date().toISOString(),
-          createdAt: serverTimestamp()
+          date: now,
+          createdAt: serverTimestamp(),
+          createdBy: userName,
+          lastEditedBy: userName,
+          lastEditedAt: now
         });
         alert('Meeting saved successfully!');
       }
@@ -401,19 +408,26 @@ const TeamDetail: React.FC = () => {
                             <span className="text-gray-300">|</span>
                             {new Date(meeting.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </div>
-                          <div className="flex gap-3">
-                            <button
-                              onClick={() => viewMeeting(meeting)}
-                              className="text-xs font-medium text-gray-500 hover:text-gray-800 hover:underline flex items-center gap-1"
-                            >
-                              <Eye className="w-3 h-3" /> View
-                            </button>
-                            <button
-                              onClick={() => editMeeting(meeting)}
-                              className="text-xs font-medium text-brand-600 hover:text-brand-800 hover:underline"
-                            >
-                              Edit Meeting
-                            </button>
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => viewMeeting(meeting)}
+                                className="text-xs font-medium text-gray-500 hover:text-gray-800 hover:underline flex items-center gap-1"
+                              >
+                                <Eye className="w-3 h-3" /> View
+                              </button>
+                              <button
+                                onClick={() => editMeeting(meeting)}
+                                className="text-xs font-medium text-brand-600 hover:text-brand-800 hover:underline"
+                              >
+                                Edit Meeting
+                              </button>
+                            </div>
+                            {meeting.lastEditedBy && (
+                              <span className="text-[10px] text-gray-400 italic">
+                                Edited by {meeting.lastEditedBy}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="p-6">

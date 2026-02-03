@@ -28,4 +28,7 @@ export interface Meeting {
   rawNotes: string;
   analysis?: MeetingAnalysis | null;
   createdAt: number;
+  createdBy?: string;
+  lastEditedBy?: string;
+  lastEditedAt?: string;
 }
