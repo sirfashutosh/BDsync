@@ -425,7 +425,7 @@ const TeamDetail: React.FC = () => {
                             </div>
                             {meeting.lastEditedBy && (
                               <span className="text-[10px] text-gray-400 italic">
-                                Edited by {meeting.lastEditedBy}
+                                Last Edited by {meeting.lastEditedBy} {meeting.lastEditedAt ? `at ${new Date(meeting.lastEditedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on ${new Date(meeting.lastEditedAt).toLocaleDateString()}` : ''}
                               </span>
                             )}
                           </div>
