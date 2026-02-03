@@ -7,45 +7,24 @@ import { Team, Meeting, MeetingAnalysis } from './types';
 import MeetingRecorder from './components/MeetingRecorder';
 import JoinTeam from './components/JoinTeam';
 import ViewMeetingModal from './components/ViewMeetingModal';
-import { LayoutDashboard, Users, LogOut, Briefcase, Plus, AlertCircle, Calendar, CheckSquare, Lightbulb, Link as LinkIcon, Copy, Eye } from 'lucide-react';
-
-const Navbar: React.FC = () => {
-  const { user, logout, isDemo } = useAuth();
-  return (
-    <nav className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-50">
-      <div className="flex items-center gap-2">
-        <div className="bg-brand-600 text-white p-1.5 rounded-lg">
-          <Briefcase className="w-5 h-5" />
-        </div>
-        <span className="font-bold text-xl tracking-tight text-slate-800">BD Sync</span>
-        {isDemo && (
-          <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1 border border-amber-200">
-            <AlertCircle className="w-3 h-3" /> Demo Mode
-          </span>
-        )}
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="text-right hidden sm:block">
-          <p className="text-sm font-medium text-gray-900">{user?.displayName}</p>
-          <p className="text-xs text-gray-500 uppercase tracking-wide">{user?.role}</p>
-        </div>
-        <button
-          onClick={logout}
-          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-          title="Sign Out"
-        >
-          <LogOut className="w-5 h-5" />
-        </button>
-      </div>
-    </nav>
-  );
-};
+import { Layout } from './components/Layout';
+import { Button } from './components/ui/Button';
+import { Card } from './components/ui/Card';
+import { PageTransition } from './components/ui/PageTransition';
+import { Input } from './components/ui/Input';
+import { Users, LogOut, Briefcase, Plus, AlertCircle, Calendar, CheckSquare, Lightbulb, Link as LinkIcon, Eye, ArrowRight, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Logo } from './components/ui/Logo';
 
 const LoginView: React.FC = () => {
   const { user, signIn, loading } = useAuth();
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="w-16 h-16 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   if (user) {
@@ -53,21 +32,40 @@ const LoginView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
-        <div className="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Briefcase className="w-8 h-8" />
-        </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Welcome to BD Sync</h1>
-        <p className="text-slate-500 mb-8">Secure meeting management and AI-powered insights for Business Development teams.</p>
-        <button
-          onClick={signIn}
-          className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
-        >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google" />
-          Sign in with Google
-        </button>
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-4">
+      {/* Animated Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-400/30 rounded-full blur-[120px] animate-blob mix-blend-multiply"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-400/30 rounded-full blur-[120px] animate-blob animation-delay-2000 mix-blend-multiply"></div>
       </div>
+
+      <PageTransition className="relative z-10 w-full max-w-md">
+        <div className="glass-panel p-8 rounded-3xl shadow-2xl backdrop-blur-3xl text-center border-white/40">
+          <div className="flex justify-center mb-8">
+            <Logo className="scale-125" />
+          </div>
+          <p className="text-slate-600 mb-10 text-lg leading-relaxed">
+            The intelligent workspace for high-velocity Business Development teams.
+          </p>
+
+          <Button
+            onClick={signIn}
+            variant="primary"
+            size="lg"
+            className="w-full rounded-2xl text-lg h-14 shadow-xl shadow-brand-500/20 group relative overflow-hidden"
+          >
+            <span className="relative z-10 flex items-center gap-3">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 bg-white rounded-full p-0.5" alt="Google" />
+              Sign in with Google
+            </span>
+            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+          </Button>
+
+          <p className="mt-8 text-xs text-slate-400 font-medium tracking-wide">
+            SECURE ACCESS • ENTERPRISE READY
+          </p>
+        </div>
+      </PageTransition>
     </div>
   );
 };
@@ -141,84 +139,120 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+    <PageTransition>
+      <div className="flex justify-between items-end mb-10">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Department Overview</h2>
-          <p className="text-slate-500 text-sm">Manage teams and invite members.</p>
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Department Overview</h2>
+          <p className="text-slate-500 font-medium">Manage your sales squads and performance.</p>
         </div>
-        <button
+        <Button
           onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors shadow-sm"
+          className="shadow-lg shadow-brand-500/20"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-5 h-5 mr-2" />
           New Team
-        </button>
+        </Button>
       </div>
 
-      {loading ? <p>Loading teams...</p> : (
+      {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {teams.map(team => (
-            <div key={team.id} className="relative group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all h-full hover:border-brand-300 flex flex-col">
-              <Link to={`/team/${team.id}`} className="block p-6 flex-1">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="bg-blue-50 text-brand-600 p-3 rounded-lg group-hover:bg-brand-600 group-hover:text-white transition-colors">
+          {[1, 2, 3].map(i => <div key={i} className="h-48 rounded-2xl bg-white/50 animate-pulse"></div>)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {teams.map((team, idx) => (
+            <Card
+              key={team.id}
+              variant="interactive"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: idx * 0.1 }}
+              className="group flex flex-col h-full border-transparent hover:border-brand-200/50"
+            >
+              <Link to={`/team/${team.id}`} className="block p-7 flex-1">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="bg-brand-50 text-brand-600 p-3.5 rounded-2xl group-hover:bg-brand-600 group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-brand-500/30">
                     <Users className="w-6 h-6" />
                   </div>
+                  <div className="bg-slate-50 px-3 py-1 rounded-full text-xs font-bold text-slate-500 border border-slate-100 uppercase tracking-wider">
+                    {team.memberIds.length} Reps
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{team.name}</h3>
-                <p className="text-sm text-gray-500">{team.memberIds.length} members assigned</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">{team.name}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">Active pipeline management and meeting tracking.</p>
               </Link>
 
-              <div className="p-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50 rounded-b-xl">
-                <Link to={`/team/${team.id}`} className="text-sm text-brand-600 font-medium hover:underline">
-                  View Dashboard
+              <div className="p-4 px-7 border-t border-slate-50 bg-slate-50/50 flex items-center justify-between">
+                <Link to={`/team/${team.id}`} className="text-sm font-bold text-slate-600 hover:text-brand-600 flex items-center gap-1 transition-colors">
+                  Dashboard <ArrowRight className="w-4 h-4" />
                 </Link>
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => copyInviteLink(team.id)}
-                  className="flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:border-brand-300 hover:text-brand-700 transition-colors"
+                  className="h-8 text-xs bg-white hover:bg-white text-slate-500"
                   title="Copy Invite Link"
                 >
-                  <LinkIcon className="w-3 h-3" /> Invite
-                </button>
+                  <LinkIcon className="w-3 h-3 mr-1.5" /> Invite
+                </Button>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}
 
-      {/* Basic Modal Implementation */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Create New Team</h3>
-            <input
-              type="text"
-              placeholder="Team Name (e.g. Delta Force)"
-              className="w-full p-3 border border-gray-300 rounded-lg mb-6 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
-              value={newTeamName}
-              onChange={(e) => setNewTeamName(e.target.value)}
-              autoFocus
+      {/* Modern Modal */}
+      <AnimatePresence>
+        {isCreateModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCreateModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
             />
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setIsCreateModalOpen(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateTeam}
-                disabled={!newTeamName.trim() || isCreating}
-                className="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isCreating ? 'Creating...' : 'Create Team'}
-              </button>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative z-10 overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                <Briefcase className="w-24 h-24 text-brand-900" />
+              </div>
+
+              <h3 className="text-2xl font-bold text-slate-900 mb-2 relative z-10">Create New Team</h3>
+              <p className="text-slate-500 mb-8 relative z-10">Establish a new squad for tracking.</p>
+
+              <Input
+                placeholder="Team Name (e.g. Delta Force)"
+                value={newTeamName}
+                onChange={(e) => setNewTeamName(e.target.value)}
+                autoFocus
+                className="mb-8"
+              />
+
+              <div className="flex justify-end gap-3 relative z-10">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsCreateModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreateTeam}
+                  disabled={!newTeamName.trim() || isCreating}
+                  isLoading={isCreating}
+                >
+                  Create Team
+                </Button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </AnimatePresence>
+    </PageTransition>
   );
 };
 
@@ -245,20 +279,18 @@ const TeamDetail: React.FC = () => {
     );
   }
 
+  const [teamMembers, setTeamMembers] = useState<any[]>([]); // Using any[] for now to match UserProfile structure effectively
+
   useEffect(() => {
     const fetchMeetings = async () => {
-      // Fetch meetings for both list AND record mode (to get previous meeting context)
+      // Fetch meetings for both list AND record mode
       if (id && !isDemo) {
         setIsLoadingMeetings(true);
         try {
-          // Simple query. Note: Sorting in JS to avoid index requirements for MVP.
           const q = query(collection(db, 'meetings'), where('teamId', '==', id));
           const snapshot = await getDocs(q);
           const fetchedMeetings = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Meeting));
-
-          // Sort by date descending (newest first)
           fetchedMeetings.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
           setMeetings(fetchedMeetings);
         } catch (error) {
           console.error("Error fetching meetings:", error);
@@ -267,7 +299,30 @@ const TeamDetail: React.FC = () => {
         }
       }
     };
+
+    // Fetch Team Members for Assignment Dropdown
+    const fetchTeamMembers = async () => {
+      if (id && !isDemo) {
+        try {
+          const q = query(collection(db, 'users'), where('teamId', '==', id));
+          const snapshot = await getDocs(q);
+          const members = snapshot.docs.map(d => d.data());
+          setTeamMembers(members);
+        } catch (e) {
+          console.error("Error fetching team members", e);
+        }
+      } else if (isDemo) {
+        // Mock members
+        setTeamMembers([
+          { uid: '1', displayName: 'Sarah Jenkins', email: 'sarah@example.com' },
+          { uid: '2', displayName: 'Mike Ross', email: 'mike@example.com' },
+          { uid: '3', displayName: 'Jessica Pearson', email: 'jessica@example.com' }
+        ]);
+      }
+    };
+
     fetchMeetings();
+    fetchTeamMembers();
   }, [id, isDemo]);
 
   const handleSave = async (notes: string, analysis: MeetingAnalysis) => {
@@ -341,151 +396,188 @@ const TeamDetail: React.FC = () => {
   const latestMeeting = meetings.length > 0 ? meetings[0] : undefined;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)]">
-      <div className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
-        <div>
-          {user?.role === 'admin' && (
-            <Link to="/" className="text-xs text-gray-500 hover:text-brand-600 mb-1 block">&larr; Back to Dashboard</Link>
-          )}
-          <h1 className="text-2xl font-bold text-gray-900">Team Workspace: <span className="text-brand-600">{id}</span></h1>
-        </div>
-        <div className="flex bg-gray-100 p-1 rounded-lg">
-          <button
-            onClick={startNewMeeting}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'record' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
-          >
-            {editingMeeting ? 'Editing Meeting' : 'New Meeting'}
-          </button>
-          <button
-            onClick={() => { setActiveTab('list'); setEditingMeeting(null); }}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
-          >
-            History
-          </button>
-        </div>
-      </div>
-
-      <div className="flex-1 bg-slate-50 p-6 overflow-hidden overflow-y-auto">
-        {activeTab === 'record' ? (
-          <MeetingRecorder
-            teamId={id || ''}
-            onSave={handleSave}
-            lastMeeting={latestMeeting}
-            initialData={editingMeeting}
-          />
-        ) : (
-          <div className="max-w-5xl mx-auto space-y-6">
-            {isDemo ? (
-              <div className="bg-amber-50 border border-amber-200 p-6 rounded-xl">
-                <h3 className="text-amber-900 font-bold flex items-center gap-2 mb-2"><AlertCircle className="w-5 h-5" /> Demo Mode: History Unavailable</h3>
-                <p className="text-amber-800 text-sm">Since no Firestore keys were provided, meeting history cannot be retrieved. In a production environment, this would list all previous meetings for {id}.</p>
+    <PageTransition>
+      <div className="flex flex-col h-[calc(100vh-100px)]">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            {user?.role === 'admin' && (
+              <Link to="/" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 hover:text-brand-600 hover:bg-white shadow-sm transition-all border border-slate-100">
+                <ArrowRight className="w-5 h-5 rotate-180" />
+              </Link>
+            )}
+            <div>
+              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Team Workspace</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">ID:</span>
+                <span className="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">{id}</span>
               </div>
-            ) : (
-              <>
-                {isLoadingMeetings ? (
-                  <div className="bg-white p-8 rounded-xl text-center border border-gray-200">
-                    <p className="text-gray-500">Loading meeting history...</p>
-                  </div>
-                ) : meetings.length === 0 ? (
-                  <div className="bg-white p-12 rounded-xl text-center border border-gray-200 shadow-sm">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Calendar className="w-8 h-8 text-gray-400" />
+            </div>
+          </div>
+          <div className="bg-white/50 backdrop-blur-md p-1.5 rounded-xl border border-white/60 shadow-sm flex gap-1">
+            <Button
+              variant={activeTab === 'record' ? 'primary' : 'ghost'}
+              size="sm"
+              onClick={startNewMeeting}
+              className={activeTab === 'record' ? 'shadow-brand-500/20' : ''}
+            >
+              {editingMeeting ? 'Editing Meeting' : 'New Meeting'}
+            </Button>
+            <Button
+              variant={activeTab === 'list' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => { setActiveTab('list'); setEditingMeeting(null); }}
+              className={activeTab === 'list' ? 'bg-white shadow-sm' : ''}
+            >
+              History
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-hidden">
+          {activeTab === 'record' ? (
+            <div className="h-full overflow-y-auto pr-1 pb-20">
+              <MeetingRecorder
+                teamId={id || ''}
+                onSave={handleSave}
+                lastMeeting={latestMeeting}
+                initialData={editingMeeting}
+                teamMembers={teamMembers}
+              />
+            </div>
+          ) : (
+            <div className="h-full overflow-y-auto pr-2 pb-20 space-y-6">
+              {isDemo ? (
+                <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl">
+                  <h3 className="text-amber-900 font-bold flex items-center gap-2 mb-2"><AlertCircle className="w-5 h-5" /> Demo Mode: History Unavailable</h3>
+                  <p className="text-amber-800 text-sm">Since no Firestore keys were provided, meeting history cannot be retrieved. In a production environment, this would list all previous meetings for {id}.</p>
+                </div>
+              ) : (
+                <>
+                  {isLoadingMeetings ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map(i => <div key={i} className="h-40 rounded-2xl bg-white/50 animate-pulse"></div>)}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">No meetings recorded</h3>
-                    <p className="text-gray-500 mt-2">Start a new meeting to generate insights.</p>
-                    <button onClick={startNewMeeting} className="mt-4 text-brand-600 font-medium hover:underline">
-                      Start New Meeting
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid gap-6">
-                    {meetings.map((meeting) => (
-                      <div key={meeting.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                        <div className="bg-gray-50 px-6 py-3 border-b border-gray-100 flex justify-between items-center">
-                          <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
-                            <Calendar className="w-4 h-4" />
-                            {new Date(meeting.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                            <span className="text-gray-300">|</span>
-                            {new Date(meeting.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </div>
-                          <div className="flex flex-col items-end gap-1">
-                            <div className="flex gap-3">
-                              <button
-                                onClick={() => viewMeeting(meeting)}
-                                className="text-xs font-medium text-gray-500 hover:text-gray-800 hover:underline flex items-center gap-1"
-                              >
-                                <Eye className="w-3 h-3" /> View
-                              </button>
-                              <button
-                                onClick={() => editMeeting(meeting)}
-                                className="text-xs font-medium text-brand-600 hover:text-brand-800 hover:underline"
-                              >
-                                Edit Meeting
-                              </button>
+                  ) : meetings.length === 0 ? (
+                    <div className="glass-panel p-16 rounded-3xl text-center">
+                      <div className="w-20 h-20 bg-brand-50 text-brand-300 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Calendar className="w-10 h-10" />
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900">No meetings recorded</h3>
+                      <p className="text-slate-500 mt-2 mb-8">Start a new meeting to generate insights.</p>
+                      <Button onClick={startNewMeeting}>
+                        Start New Meeting
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="grid gap-6">
+                      {meetings.map((meeting, idx) => (
+                        <Card
+                          key={meeting.id}
+                          variant="glass"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="overflow-hidden group"
+                        >
+                          <div className="bg-white/40 px-6 py-4 border-b border-white/50 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                              <div className="bg-white p-2 rounded-lg text-brand-500 shadow-sm">
+                                <Calendar className="w-5 h-5" />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-bold text-slate-900">
+                                  {new Date(meeting.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                </span>
+                                <span className="text-xs font-medium text-slate-500">
+                                  {new Date(meeting.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
                             </div>
-                            {meeting.lastEditedBy && (
-                              <span className="text-[10px] text-gray-400 italic">
-                                Last Edited by {meeting.lastEditedBy} {meeting.lastEditedAt ? `at ${new Date(meeting.lastEditedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on ${new Date(meeting.lastEditedAt).toLocaleDateString()}` : ''}
-                              </span>
+                            <div className="flex flex-col items-end gap-1">
+                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => viewMeeting(meeting)}
+                                  className="h-8 text-xs"
+                                >
+                                  <Eye className="w-3 h-3 mr-1" /> View
+                                </Button>
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  onClick={() => editMeeting(meeting)}
+                                  className="h-8 text-xs"
+                                >
+                                  Edit
+                                </Button>
+                              </div>
+                              {meeting.lastEditedBy && (
+                                <span className="text-[10px] text-slate-400 font-medium">
+                                  Edited by {meeting.lastEditedBy}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="p-6">
+                            <div className="mb-6">
+                              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Executive Summary</h4>
+                              <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap pl-4 border-l-2 border-brand-200">
+                                {meeting.analysis?.summary || meeting.rawNotes.substring(0, 200) + '...'}
+                              </p>
+                            </div>
+
+                            {meeting.analysis && (
+                              <div className="grid md:grid-cols-2 gap-6">
+                                <div className="bg-slate-50/50 p-4 rounded-xl border border-white/50">
+                                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <CheckSquare className="w-3 h-3" /> Action Items
+                                  </h4>
+                                  <ul className="space-y-2.5">
+                                    {meeting.analysis.action_items.slice(0, 3).map((item, i) => (
+                                      <li key={i} className="text-sm flex items-start gap-2.5">
+                                        <span className="bg-brand-100 text-brand-700 text-[10px] font-bold px-2 py-0.5 rounded-md mt-0.5 shadow-sm">{item.owner}</span>
+                                        <span className="text-slate-600 leading-snug">{item.task}</span>
+                                      </li>
+                                    ))}
+                                    {meeting.analysis.action_items.length > 3 && (
+                                      <li className="text-xs text-slate-400 italic pl-1">+{meeting.analysis.action_items.length - 3} more items</li>
+                                    )}
+                                  </ul>
+                                </div>
+
+                                <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-100/50">
+                                  <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <Sparkles className="w-3 h-3" /> Strategic Insight
+                                  </h4>
+                                  <p className="text-sm text-amber-900/80 italic leading-relaxed">"{meeting.analysis.suggestions}"</p>
+                                </div>
+                              </div>
                             )}
                           </div>
-                        </div>
-                        <div className="p-6">
-                          <div className="mb-4">
-                            <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Summary</h4>
-                            <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
-                              {meeting.analysis?.summary || meeting.rawNotes.substring(0, 200) + '...'}
-                            </p>
-                          </div>
-
-                          {meeting.analysis && (
-                            <div className="grid md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-gray-100">
-                              <div>
-                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                  <CheckSquare className="w-3 h-3" /> Action Items
-                                </h4>
-                                <ul className="space-y-2">
-                                  {meeting.analysis.action_items.slice(0, 3).map((item, i) => (
-                                    <li key={i} className="text-sm flex items-start gap-2">
-                                      <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5">{item.owner}</span>
-                                      <span className="text-gray-700">{item.task}</span>
-                                    </li>
-                                  ))}
-                                  {meeting.analysis.action_items.length > 3 && (
-                                    <li className="text-xs text-gray-400 italic">+{meeting.analysis.action_items.length - 3} more items</li>
-                                  )}
-                                </ul>
-                              </div>
-
-                              <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
-                                <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                  <Lightbulb className="w-3 h-3" /> Strategic Insight
-                                </h4>
-                                <p className="text-sm text-gray-700 italic">"{meeting.analysis.suggestions}"</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {
-        viewingMeeting && (
-          <ViewMeetingModal
-            meeting={viewingMeeting}
-            onClose={() => setViewingMeeting(null)}
-            onEdit={(m) => { setViewingMeeting(null); editMeeting(m); }}
-          />
-        )
-      }
-    </div >
+      <AnimatePresence>
+        {
+          viewingMeeting && (
+            <ViewMeetingModal
+              meeting={viewingMeeting}
+              onClose={() => setViewingMeeting(null)}
+              onEdit={(m) => { setViewingMeeting(null); editMeeting(m); }}
+            />
+          )
+        }
+      </AnimatePresence>
+    </PageTransition>
   );
 };
 
@@ -527,18 +619,16 @@ const App: React.FC = () => {
           <Route path="/join/:teamId" element={<JoinTeam />} />
           <Route path="/" element={
             <ProtectedRoute>
-              <>
-                <Navbar />
+              <Layout>
                 <DashboardRouter />
-              </>
+              </Layout>
             </ProtectedRoute>
           } />
           <Route path="/team/:id" element={
             <ProtectedRoute>
-              <>
-                <Navbar />
+              <Layout>
                 <TeamDetail />
-              </>
+              </Layout>
             </ProtectedRoute>
           } />
         </Routes>
