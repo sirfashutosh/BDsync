@@ -6,7 +6,8 @@ import { db } from './services/firebaseConfig';
 import { Team, Meeting, MeetingAnalysis } from './types';
 import MeetingRecorder from './components/MeetingRecorder';
 import JoinTeam from './components/JoinTeam';
-import { LayoutDashboard, Users, LogOut, Briefcase, Plus, AlertCircle, Calendar, CheckSquare, Lightbulb, Link as LinkIcon, Copy } from 'lucide-react';
+import ViewMeetingModal from './components/ViewMeetingModal';
+import { LayoutDashboard, Users, LogOut, Briefcase, Plus, AlertCircle, Calendar, CheckSquare, Lightbulb, Link as LinkIcon, Copy, Eye } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const { user, logout, isDemo } = useAuth();
@@ -228,6 +229,7 @@ const TeamDetail: React.FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isLoadingMeetings, setIsLoadingMeetings] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
+  const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
 
   // Security check: If member, ensure they match the team ID
   if (user?.role === 'member' && user.teamId !== id) {
@@ -325,6 +327,10 @@ const TeamDetail: React.FC = () => {
     setActiveTab('record');
   }
 
+  const viewMeeting = (meeting: Meeting) => {
+    setViewingMeeting(meeting);
+  };
+
   const latestMeeting = meetings.length > 0 ? meetings[0] : undefined;
 
   return (
@@ -395,12 +401,20 @@ const TeamDetail: React.FC = () => {
                             <span className="text-gray-300">|</span>
                             {new Date(meeting.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </div>
-                          <button
-                            onClick={() => editMeeting(meeting)}
-                            className="text-xs font-medium text-brand-600 hover:text-brand-800 hover:underline"
-                          >
-                            Edit Meeting
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => viewMeeting(meeting)}
+                              className="text-xs font-medium text-gray-500 hover:text-gray-800 hover:underline flex items-center gap-1"
+                            >
+                              <Eye className="w-3 h-3" /> View
+                            </button>
+                            <button
+                              onClick={() => editMeeting(meeting)}
+                              className="text-xs font-medium text-brand-600 hover:text-brand-800 hover:underline"
+                            >
+                              Edit Meeting
+                            </button>
+                          </div>
                         </div>
                         <div className="p-6">
                           <div className="mb-4">
@@ -447,7 +461,17 @@ const TeamDetail: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+
+      {
+        viewingMeeting && (
+          <ViewMeetingModal
+            meeting={viewingMeeting}
+            onClose={() => setViewingMeeting(null)}
+            onEdit={(m) => { setViewingMeeting(null); editMeeting(m); }}
+          />
+        )
+      }
+    </div >
   );
 };
 
