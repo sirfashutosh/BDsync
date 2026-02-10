@@ -12,7 +12,7 @@ import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
 import { PageTransition } from './components/ui/PageTransition';
 import { Input } from './components/ui/Input';
-import { Users, LogOut, Briefcase, Plus, AlertCircle, Calendar, CheckSquare, Lightbulb, Link as LinkIcon, Eye, ArrowRight, Sparkles } from 'lucide-react';
+import { Users, LogOut, Briefcase, Plus, AlertCircle, Calendar, CheckSquare, Lightbulb, Link as LinkIcon, Eye, ArrowRight, Sparkles, ChevronDown, FileText } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Logo } from './components/ui/Logo';
 
@@ -256,6 +256,125 @@ const AdminDashboard: React.FC = () => {
   );
 };
 
+const MeetingCard: React.FC<{
+  meeting: Meeting;
+  onEdit: (meeting: Meeting) => void;
+  idx: number;
+}> = ({ meeting, onEdit, idx }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <Card
+      variant="glass"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.05 }}
+      className={`overflow-hidden group transition-all duration-300 ${isExpanded ? 'ring-2 ring-brand-500/20' : 'hover:scale-[1.01]'}`}
+    >
+      <div
+        className="bg-white/40 px-6 py-4 border-b border-white/50 flex justify-between items-center cursor-pointer hover:bg-white/60 transition-colors"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-3">
+          <div className={`bg-white p-2 rounded-lg shadow-sm transition-colors ${isExpanded ? 'text-brand-600 bg-brand-50' : 'text-brand-500'}`}>
+            {isExpanded ? <ChevronDown className="w-5 h-5" /> : <Calendar className="w-5 h-5" />}
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-slate-900">
+              {new Date(meeting.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+            <span className="text-xs font-medium text-slate-500">
+              {new Date(meeting.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); onEdit(meeting); }}
+              className="h-8 text-xs"
+            >
+              Edit
+            </Button>
+          </div>
+          {meeting.lastEditedBy && (
+            <span className="text-[10px] text-slate-400 font-medium">
+              Edited by {meeting.lastEditedBy}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="p-6 border-t border-white/50">
+              {meeting.analysis?.summary && (
+                <div className="mb-6">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Executive Summary</h4>
+                  <div
+                    className="rich-text text-slate-700 text-sm leading-relaxed pl-4 border-l-2 border-brand-200"
+                    dangerouslySetInnerHTML={{ __html: meeting.analysis.summary }}
+                  />
+                </div>
+              )}
+
+              {meeting.analysis && (
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                  {meeting.analysis.action_items && meeting.analysis.action_items.length > 0 && (
+                    <div className="bg-slate-50/50 p-4 rounded-xl border border-white/50">
+                      <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <CheckSquare className="w-3 h-3" /> Action Items
+                      </h4>
+                      <ul className="space-y-2.5">
+                        {meeting.analysis.action_items.map((item, i) => (
+                          <li key={i} className="text-sm flex items-start gap-2.5">
+                            <span className="bg-brand-100 text-brand-700 text-[10px] font-bold px-2 py-0.5 rounded-md mt-0.5 shadow-sm">{item.owner}</span>
+                            <span className="text-slate-600 leading-snug">{item.task}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {meeting.analysis.suggestions && (
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-100/50">
+                      <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <Sparkles className="w-3 h-3" /> Strategic Insight
+                      </h4>
+                      <p className="text-sm text-amber-900/80 italic leading-relaxed">"{meeting.analysis.suggestions}"</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Original Notes Section */}
+              {meeting.rawNotes && (
+                <div className="pt-6 border-t border-slate-200/60">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 ml-1 mb-3">
+                    <FileText className="w-4 h-4" /> Original Notes
+                  </h3>
+                  <div
+                    className="text-sm text-slate-500 leading-relaxed px-5 py-3 border-l-4 border-slate-200 pl-4 bg-slate-100/30 rounded-r-xl"
+                    dangerouslySetInnerHTML={{ __html: meeting.rawNotes }}
+                  />
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Card>
+  );
+};
+
 const TeamDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user, isDemo } = useAuth();
@@ -471,91 +590,12 @@ const TeamDetail: React.FC = () => {
                   ) : (
                     <div className="grid gap-6">
                       {meetings.map((meeting, idx) => (
-                        <Card
+                        <MeetingCard
                           key={meeting.id}
-                          variant="glass"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.05 }}
-                          className="overflow-hidden group"
-                        >
-                          <div className="bg-white/40 px-6 py-4 border-b border-white/50 flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                              <div className="bg-white p-2 rounded-lg text-brand-500 shadow-sm">
-                                <Calendar className="w-5 h-5" />
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-bold text-slate-900">
-                                  {new Date(meeting.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                                </span>
-                                <span className="text-xs font-medium text-slate-500">
-                                  {new Date(meeting.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  onClick={() => viewMeeting(meeting)}
-                                  className="h-8 text-xs"
-                                >
-                                  <Eye className="w-3 h-3 mr-1" /> View
-                                </Button>
-                                <Button
-                                  variant="primary"
-                                  size="sm"
-                                  onClick={() => editMeeting(meeting)}
-                                  className="h-8 text-xs"
-                                >
-                                  Edit
-                                </Button>
-                              </div>
-                              {meeting.lastEditedBy && (
-                                <span className="text-[10px] text-slate-400 font-medium">
-                                  Edited by {meeting.lastEditedBy}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="p-6">
-                            <div className="mb-6">
-                              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Executive Summary</h4>
-                              <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap pl-4 border-l-2 border-brand-200">
-                                {meeting.analysis?.summary || meeting.rawNotes.substring(0, 200) + '...'}
-                              </p>
-                            </div>
-
-                            {meeting.analysis && (
-                              <div className="grid md:grid-cols-2 gap-6">
-                                <div className="bg-slate-50/50 p-4 rounded-xl border border-white/50">
-                                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                    <CheckSquare className="w-3 h-3" /> Action Items
-                                  </h4>
-                                  <ul className="space-y-2.5">
-                                    {meeting.analysis.action_items.slice(0, 3).map((item, i) => (
-                                      <li key={i} className="text-sm flex items-start gap-2.5">
-                                        <span className="bg-brand-100 text-brand-700 text-[10px] font-bold px-2 py-0.5 rounded-md mt-0.5 shadow-sm">{item.owner}</span>
-                                        <span className="text-slate-600 leading-snug">{item.task}</span>
-                                      </li>
-                                    ))}
-                                    {meeting.analysis.action_items.length > 3 && (
-                                      <li className="text-xs text-slate-400 italic pl-1">+{meeting.analysis.action_items.length - 3} more items</li>
-                                    )}
-                                  </ul>
-                                </div>
-
-                                <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-100/50">
-                                  <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                    <Sparkles className="w-3 h-3" /> Strategic Insight
-                                  </h4>
-                                  <p className="text-sm text-amber-900/80 italic leading-relaxed">"{meeting.analysis.suggestions}"</p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </Card>
+                          meeting={meeting}
+                          onEdit={editMeeting}
+                          idx={idx}
+                        />
                       ))}
                     </div>
                   )}

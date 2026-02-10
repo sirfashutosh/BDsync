@@ -133,9 +133,10 @@ const MeetingRecorder: React.FC<MeetingRecorderProps> = ({ teamId, onSave, lastM
                   <p className="text-[10px] font-bold text-slate-400 uppercase mb-3 flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" /> Summary
                   </p>
-                  <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
-                    {lastMeeting.analysis?.summary || lastMeeting.rawNotes || "No summary available."}
-                  </p>
+                  <div
+                    className="rich-text text-xs text-slate-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: lastMeeting.analysis?.summary || lastMeeting.rawNotes || "No summary available." }}
+                  />
                 </div>
                 {lastMeeting.analysis?.action_items && lastMeeting.analysis.action_items.length > 0 && (
                   <div>

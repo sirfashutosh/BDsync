@@ -108,9 +108,10 @@ const ViewMeetingModal: React.FC<ViewMeetingModalProps> = ({ meeting, onClose, o
                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 ml-1">
                                 <FileText className="w-4 h-4" /> Original Notes
                             </h3>
-                            <div className="text-sm text-slate-500 whitespace-pre-wrap leading-relaxed px-5 py-3 border-l-4 border-slate-200 pl-4 bg-slate-100/30 rounded-r-xl">
-                                {meeting.rawNotes}
-                            </div>
+                            <div
+                                className="text-sm text-slate-500 leading-relaxed px-5 py-3 border-l-4 border-slate-200 pl-4 bg-slate-100/30 rounded-r-xl"
+                                dangerouslySetInnerHTML={{ __html: meeting.rawNotes }}
+                            />
                         </div>
                     )}
 
